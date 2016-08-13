@@ -1,0 +1,86 @@
+apply plugin: 'com.android.library'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+android {
+    compileSdkVersion 24
+    buildToolsVersion '24.0.1'
+
+    defaultConfig {
+        minSdkVersion 7
+        targetSdkVersion 24
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:recyclerview-v7:24.1.1'
+}
+
+final bintrayUser = hasProperty('bintray_user') ? property('bintray_user') : ''
+final bintrayApiKey = hasProperty('bintray_api_key') ? property('bintray_api_key') : ''
+final versionName = hasProperty('version_name') ? property('version_name') : ''
+
+task sourceJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier 'source'
+}
+
+publishing {
+    publications {
+        Bintray(MavenPublication) {
+            groupId 'com.github.wrdlbrnft'
+            artifactId 'sorted-list-adapter'
+            version versionName
+            artifact sourceJar
+            artifact new File(buildDir, '/outputs/aar/SortedListAdapter-release.aar')
+
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+                project.configurations.compile.allDependencies.each {
+                    if (it.group != null && it.name != null && it.version != null) {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode 'groupId', it.group
+                        dependencyNode.appendNode 'artifactId', it.name
+                        dependencyNode.appendNode 'version', it.version
+                        final dependencyArtifact = it.artifacts[0];
+                        if(dependencyArtifact != null) {
+                            if (dependencyArtifact.classifier != null) {
+                                dependencyNode.appendNode 'classifier', dependencyArtifact.classifier
+                            }
+                            if (dependencyArtifact.extension != null) {
+                                dependencyNode.appendNode 'type', dependencyArtifact.extension
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+bintray {
+    user = bintrayUser
+    key = bintrayApiKey
+    publications = ['Bintray']
+    pkg {
+        repo = 'maven'
+        name = 'SortedListAdapter'
+        userOrg = bintrayUser
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/Wrdlbrnft/SortedListAdapter'
+        publicDownloadNumbers = true
+        version {
+            name = versionName
+            released = new Date()
+        }
+    }
+}
