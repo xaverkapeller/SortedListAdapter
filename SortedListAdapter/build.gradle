@@ -22,7 +22,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:recyclerview-v7:24.1.1'
+    provided 'com.android.support:recyclerview-v7:24.1.1'
 }
 
 final bintrayUser = hasProperty('bintray_user') ? property('bintray_user') : ''
