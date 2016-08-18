@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>SortedListAdapter by Wrdlbrnft</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">SortedListAdapter</h1>
+      <h2 class="project-tagline">The RecyclerView.Adapter that makes your life easy!</h2>
+      <a href="https://github.com/Wrdlbrnft/SortedListAdapter" class="btn">View on GitHub</a>
+      <a href="https://github.com/Wrdlbrnft/SortedListAdapter/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/Wrdlbrnft/SortedListAdapter/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <ul>
+<li>
+<strong>Based on the SortedList</strong>: Uses a <code>Comparator</code> to sort the elements in your <code>RecyclerView</code>. By using a <code>Comparator</code> the <code>SortedList</code> takes care of managing the models in the <code>Adapter</code> in an efficient way and triggers all view animations for you!</li>
+<li>
+<strong>Reduces boilerplate</strong>: All you have to do is implement your <code>ViewHolder</code> based on <code>SortedListAdapter.ViewHolder</code>. The <code>SortedListAdapter</code> takes care of binding data and calls to the notify methods when you add or remove models to the <code>SortedListAdapter</code>.</li>
+</ul>
+
+<h1>
+<a id="how-do-i-add-it-to-my-project" class="anchor" href="#how-do-i-add-it-to-my-project" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How do I add it to my project?</h1>
+
+<p>Just add this dependency to your build.gradle file:</p>
+
+<pre><code>compile 'com.github.wrdlbrnft:sorted-list-adapter:0.1.0.5'
+</code></pre>
+
+<h1>
+<a id="simple-example-with-data-binding" class="anchor" href="#simple-example-with-data-binding" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Simple Example with Data Binding</h1>
+
+<h2>
+<a id="models" class="anchor" href="#models" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Models</h2>
+
+<p>All models you want to use in a <code>SortedListAdapter</code> have to implement <code>SortedListAdapter.ViewModel</code> like this:</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">ExampleModel</span> <span class="pl-k">implements</span> <span class="pl-e">SortedListAdapter</span>.<span class="pl-e">ViewModel</span> {
+
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-k">long</span> mId;
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> mText;
+
+    <span class="pl-k">public</span> <span class="pl-en">ExampleModel</span>(<span class="pl-k">long</span> <span class="pl-v">id</span>, <span class="pl-smi">String</span> <span class="pl-v">text</span>) {
+        mId <span class="pl-k">=</span> id;
+        mText <span class="pl-k">=</span> text;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-k">long</span> <span class="pl-en">getId</span>() {
+        <span class="pl-k">return</span> mId;
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">getText</span>() {
+        <span class="pl-k">return</span> mText;
+    }
+
+    <span class="pl-k">@Override</span>
+    <span class="pl-k">public</span> <span class="pl-k">boolean</span> <span class="pl-en">equals</span>(<span class="pl-smi">Object</span> <span class="pl-v">o</span>) {
+        <span class="pl-k">if</span> (<span class="pl-v">this</span> <span class="pl-k">==</span> o) <span class="pl-k">return</span> <span class="pl-c1">true</span>;
+        <span class="pl-k">if</span> (o <span class="pl-k">==</span> <span class="pl-c1">null</span> <span class="pl-k">||</span> getClass() <span class="pl-k">!=</span> o<span class="pl-k">.</span>getClass()) <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+
+        <span class="pl-smi">ExampleModel</span> that <span class="pl-k">=</span> (<span class="pl-smi">ExampleModel</span>) o;
+
+        <span class="pl-k">return</span> mText <span class="pl-k">!=</span> <span class="pl-c1">null</span> <span class="pl-k">?</span> mText<span class="pl-k">.</span>equals(that<span class="pl-k">.</span>mText) <span class="pl-k">:</span> that<span class="pl-k">.</span>mText <span class="pl-k">==</span> <span class="pl-c1">null</span>;
+
+    }
+
+    <span class="pl-k">@Override</span>
+    <span class="pl-k">public</span> <span class="pl-k">int</span> <span class="pl-en">hashCode</span>() {
+        <span class="pl-k">return</span> mText <span class="pl-k">!=</span> <span class="pl-c1">null</span> <span class="pl-k">?</span> mText<span class="pl-k">.</span>hashCode() <span class="pl-k">:</span> <span class="pl-c1">0</span>;
+    }
+}</pre></div>
+
+<p>It is also advisable that all models override <code>equals()</code> and <code>hashCode()</code>. However don't include any id field that might be in your models in <code>equals()</code> or <code>hashCode()</code>. <code>equals()</code> and <code>hashCode()</code> should only compare the content of a model - in the example above, just the text. </p>
+
+<p><sub>Most IDE's can generate <code>equals()</code> and <code>hashCode()</code> implementations for you.</sub></p>
+
+<h2>
+<a id="viewholders" class="anchor" href="#viewholders" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ViewHolders</h2>
+
+<p>When you implement a <code>ViewHolder</code> use the base class <code>SortedListAdapter.ViewHolder</code>, the type parameter of <code>SortedListAdapter.ViewHolder</code> should be the model which you want to bind to that <code>ViewHolder</code>:</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">ExampleViewHolder</span> <span class="pl-k">extends</span> <span class="pl-e">SortedListAdapter</span>.<span class="pl-e">ViewHolder&lt;<span class="pl-smi">ExampleModel</span>&gt;</span> {
+
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">ItemExampleBinding</span> mBinding;
+
+    <span class="pl-k">public</span> <span class="pl-en">ExampleViewHolder</span>(<span class="pl-smi">ItemExampleBinding</span> <span class="pl-v">binding</span>) {
+        <span class="pl-v">super</span>(binding<span class="pl-k">.</span>getRoot());
+        mBinding <span class="pl-k">=</span> binding;
+    }
+
+    <span class="pl-k">@Override</span>
+    <span class="pl-k">protected</span> <span class="pl-k">void</span> <span class="pl-en">performBind</span>(<span class="pl-smi">ExampleModel</span> <span class="pl-v">item</span>) {
+        mBinding<span class="pl-k">.</span>setModel(item);
+    }
+}</pre></div>
+
+<p>Bind data in the <code>performBind()</code> method.</p>
+
+<h2>
+<a id="the-adapter" class="anchor" href="#the-adapter" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The Adapter</h2>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">ExampleAdapter</span> <span class="pl-k">extends</span> <span class="pl-e">SortedListAdapter&lt;<span class="pl-smi">ExampleModel</span>&gt;</span> {
+
+    <span class="pl-k">public</span> <span class="pl-en">ExampleAdapter</span>(<span class="pl-smi">Context</span> <span class="pl-v">context</span>, <span class="pl-k">Comparator&lt;<span class="pl-smi">ExampleModel</span>&gt;</span> <span class="pl-v">comparator</span>) {
+        <span class="pl-v">super</span>(context, <span class="pl-smi">ExampleModel</span><span class="pl-k">.</span>class, comparator);
+    }
+
+    <span class="pl-k">@Override</span>
+    <span class="pl-k">protected</span> <span class="pl-k">ViewHolder&lt;? extends <span class="pl-smi">ExampleModel</span>&gt;</span> <span class="pl-en">onCreateViewHolder</span>(<span class="pl-smi">LayoutInflater</span> <span class="pl-v">inflater</span>, <span class="pl-smi">ViewGroup</span> <span class="pl-v">parent</span>, <span class="pl-k">int</span> <span class="pl-v">viewType</span>) {
+        <span class="pl-k">final</span> <span class="pl-smi">ItemExampleBinding</span> binding <span class="pl-k">=</span> <span class="pl-smi">ItemExampleBinding</span><span class="pl-k">.</span>inflate(inflater, parent, <span class="pl-c1">false</span>);
+        <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-smi">ExampleViewHolder</span>(binding);
+    }
+
+    <span class="pl-k">@Override</span>
+    <span class="pl-k">protected</span> <span class="pl-k">boolean</span> <span class="pl-en">areItemsTheSame</span>(<span class="pl-smi">ExampleModel</span> <span class="pl-v">item1</span>, <span class="pl-smi">ExampleModel</span> <span class="pl-v">item2</span>) {
+        <span class="pl-k">return</span> item1<span class="pl-k">.</span>getId() <span class="pl-k">==</span> item2<span class="pl-k">.</span>getId();
+    }
+
+    <span class="pl-k">@Override</span>
+    <span class="pl-k">protected</span> <span class="pl-k">boolean</span> <span class="pl-en">areItemContentsTheSame</span>(<span class="pl-smi">ExampleModel</span> <span class="pl-v">oldItem</span>, <span class="pl-smi">ExampleModel</span> <span class="pl-v">newItem</span>) {
+        <span class="pl-k">return</span> oldItem<span class="pl-k">.</span>equals(newItem);
+    }
+}</pre></div>
+
+<p>In <code>onCreateViewHolder()</code> just create instances of your <code>ViewHolder</code> implementations like usual. TWo extra methods have to be implemented for the <code>SortedListAdapter</code>: <code>areItemsTheSame()</code> and <code>areItemContentsTheSame()</code>.</p>
+
+<ul>
+<li>
+<strong><code>areItemsTheSame()</code></strong>: Should check if two models refer to the same thing. This method should in most cases just compare the id of a model. In simplest terms the <code>SortedListAdapter</code> uses this method to determine if a model is already contained in the <code>SortedListAdater</code> or if a new model has been added.</li>
+<li>
+<strong><code>areItemContentsTheSame()</code></strong>: Should check if the content of two models is the same. If your models have implemented <code>equals()</code> correctly you can just use <code>equals()</code> here to compare them. The <code>SortedListAdapter</code> uses this to determine if a model has changed and if a change animation should be triggered in the <code>RecyclverView</code>.</li>
+</ul>
+
+<h2>
+<a id="using-the-adapter" class="anchor" href="#using-the-adapter" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using the Adapter</h2>
+
+<p>Once you have implemented the <code>Adapter</code> you can add and remove models to it with an <code>Editor</code> object which can be accessed through the <code>edit()</code> method. All changes you make with this <code>Editor</code> object are batched and executed together once you call <code>commit()</code> on the <code>Editor</code> instance:</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">final</span> <span class="pl-k">Comparator&lt;<span class="pl-smi">ExampleModel</span>&gt;</span> alphabeticalComparator <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-k">Comparator&lt;<span class="pl-smi">ExampleModel</span>&gt;</span>() {
+    <span class="pl-k">@Override</span>
+    <span class="pl-k">public</span> <span class="pl-k">int</span> <span class="pl-en">compare</span>(<span class="pl-smi">ExampleModel</span> <span class="pl-v">a</span>, <span class="pl-smi">ExampleModel</span> <span class="pl-v">b</span>) {
+        <span class="pl-k">return</span> a<span class="pl-k">.</span>getText()<span class="pl-k">.</span>compareTo(b<span class="pl-k">.</span>getText());
+    }
+};
+
+<span class="pl-k">final</span> <span class="pl-smi">ExampleAdapter</span> adapter <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">ExampleAdapter</span>(context, alphabeticalComparator);
+recyclerView<span class="pl-k">.</span>setAdapter(adapter);
+
+adapter<span class="pl-k">.</span>edit()
+        .add(modelsToAdd)
+        .remove(modelToRemove)
+        .commit();</pre></div>
+
+<p>You can also completely replace all models in the <code>Adapter</code> with another <code>List</code> of models with the <code>replaceAll()</code> method:</p>
+
+<div class="highlight highlight-source-java"><pre>adapter<span class="pl-k">.</span>edit()
+        .replaceAll(newModels)
+        .commit();</pre></div>
+
+<p>Or you can remove all models with <code>removeAll()</code>:</p>
+
+<div class="highlight highlight-source-java"><pre>adapter<span class="pl-k">.</span>edit()
+        .removeAll()
+        .commit();</pre></div>
+
+<p>All changes you make will automatically be properly animated!</p>
+
+<h1>
+<a id="example-project" class="anchor" href="#example-project" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example Project</h1>
+
+<p>You can find a simple example project in this <a href="https://github.com/Wrdlbrnft/Searchable-RecyclerView-Demo"><strong>GitHub Repository</strong></a>.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/Wrdlbrnft/SortedListAdapter">SortedListAdapter</a> is maintained by <a href="https://github.com/Wrdlbrnft">Wrdlbrnft</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
