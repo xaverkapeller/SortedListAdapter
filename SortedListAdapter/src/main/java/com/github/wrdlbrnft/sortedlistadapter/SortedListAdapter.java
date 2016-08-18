@@ -24,7 +24,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         Editor<T> add(List<T> items);
         Editor<T> remove(T item);
         Editor<T> remove(List<T> items);
-        Editor<T> update(List<T> items);
+        Editor<T> replaceAll(List<T> items);
         void commit();
     }
 
@@ -184,7 +184,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         }
 
         @Override
-        public Editor<T> update(final List<T> items) {
+        public Editor<T> replaceAll(final List<T> items) {
             mActions.add(new Action<T>() {
                 @Override
                 public void perform(SortedList<T> list) {
