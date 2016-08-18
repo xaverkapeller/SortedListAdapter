@@ -85,8 +85,8 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
 
     protected abstract ViewHolder<? extends T> onCreateViewHolder(LayoutInflater inflater, ViewGroup parent, int viewType);
 
-    protected abstract boolean areItemContentsTheSame(T oldItem, T newItem);
     protected abstract boolean areItemsTheSame(T item1, T item2);
+    protected abstract boolean areItemContentsTheSame(T oldItem, T newItem);
 
     @Override
     public final void onBindViewHolder(ViewHolder<? extends T> holder, int position) {
