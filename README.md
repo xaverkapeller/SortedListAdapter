@@ -29,7 +29,7 @@ public class ExampleModel implements SortedListAdapter.ViewModel {
         mId = id;
         mText = text;
     }
-    
+
     public long getId() {
         return mId;
     }
@@ -43,22 +43,23 @@ public class ExampleModel implements SortedListAdapter.ViewModel {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ExampleModel that = (ExampleModel) o;
+        ExampleModel model = (ExampleModel) o;
 
-        return mText != null ? mText.equals(that.mText) : that.mText == null;
+        if (mId != model.mId) return false;
+        return mText != null ? mText.equals(model.mText) : model.mText == null;
 
     }
 
     @Override
     public int hashCode() {
-        return mText != null ? mText.hashCode() : 0;
+        int result = (int) (mId ^ (mId >>> 32));
+        result = 31 * result + (mText != null ? mText.hashCode() : 0);
+        return result;
     }
 }
 ```
 
-It is also advisable that all models override `equals()` and `hashCode()`. However don't include any id field that might be in your models in `equals()` or `hashCode()`. `equals()` and `hashCode()` should only compare the content of a model - in the example above, just the text. 
-
-<sub>Most IDE's can generate `equals()` and `hashCode()` implementations for you.</sub>
+It is also advisable that all models override `equals()` and `hashCode()`. Most IDE's can generate `equals()` and `hashCode()` implementations for you.
 
 ## ViewHolders
 
@@ -152,9 +153,8 @@ adapter.edit()
         .commit();
 ```
 
-All changes you make will automatically be properly animated!
+All changes you make will automatically be animated in the RecyclerView!
 
 # Example Project
 
 You can find a simple example project in this [**GitHub Repository**](https://github.com/Wrdlbrnft/Searchable-RecyclerView-Demo).
- 
