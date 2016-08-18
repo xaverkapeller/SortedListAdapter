@@ -65,21 +65,22 @@
         <span class="pl-k">if</span> (<span class="pl-v">this</span> <span class="pl-k">==</span> o) <span class="pl-k">return</span> <span class="pl-c1">true</span>;
         <span class="pl-k">if</span> (o <span class="pl-k">==</span> <span class="pl-c1">null</span> <span class="pl-k">||</span> getClass() <span class="pl-k">!=</span> o<span class="pl-k">.</span>getClass()) <span class="pl-k">return</span> <span class="pl-c1">false</span>;
 
-        <span class="pl-smi">ExampleModel</span> that <span class="pl-k">=</span> (<span class="pl-smi">ExampleModel</span>) o;
+        <span class="pl-smi">ExampleModel</span> model <span class="pl-k">=</span> (<span class="pl-smi">ExampleModel</span>) o;
 
-        <span class="pl-k">return</span> mText <span class="pl-k">!=</span> <span class="pl-c1">null</span> <span class="pl-k">?</span> mText<span class="pl-k">.</span>equals(that<span class="pl-k">.</span>mText) <span class="pl-k">:</span> that<span class="pl-k">.</span>mText <span class="pl-k">==</span> <span class="pl-c1">null</span>;
+        <span class="pl-k">if</span> (mId <span class="pl-k">!=</span> model<span class="pl-k">.</span>mId) <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+        <span class="pl-k">return</span> mText <span class="pl-k">!=</span> <span class="pl-c1">null</span> <span class="pl-k">?</span> mText<span class="pl-k">.</span>equals(model<span class="pl-k">.</span>mText) <span class="pl-k">:</span> model<span class="pl-k">.</span>mText <span class="pl-k">==</span> <span class="pl-c1">null</span>;
 
     }
 
     <span class="pl-k">@Override</span>
     <span class="pl-k">public</span> <span class="pl-k">int</span> <span class="pl-en">hashCode</span>() {
-        <span class="pl-k">return</span> mText <span class="pl-k">!=</span> <span class="pl-c1">null</span> <span class="pl-k">?</span> mText<span class="pl-k">.</span>hashCode() <span class="pl-k">:</span> <span class="pl-c1">0</span>;
+        <span class="pl-k">int</span> result <span class="pl-k">=</span> (<span class="pl-k">int</span>) (mId <span class="pl-k">^</span> (mId <span class="pl-k">&gt;&gt;&gt;</span> <span class="pl-c1">32</span>));
+        result <span class="pl-k">=</span> <span class="pl-c1">31</span> <span class="pl-k">*</span> result <span class="pl-k">+</span> (mText <span class="pl-k">!=</span> <span class="pl-c1">null</span> <span class="pl-k">?</span> mText<span class="pl-k">.</span>hashCode() <span class="pl-k">:</span> <span class="pl-c1">0</span>);
+        <span class="pl-k">return</span> result;
     }
 }</pre></div>
 
-<p>It is also advisable that all models override <code>equals()</code> and <code>hashCode()</code>. However don't include any id field that might be in your models in <code>equals()</code> or <code>hashCode()</code>. <code>equals()</code> and <code>hashCode()</code> should only compare the content of a model - in the example above, just the text. </p>
-
-<p><sub>Most IDE's can generate <code>equals()</code> and <code>hashCode()</code> implementations for you.</sub></p>
+<p>It is also advisable that all models override <code>equals()</code> and <code>hashCode()</code>. Most IDE's can generate <code>equals()</code> and <code>hashCode()</code> implementations for you.</p>
 
 <h2>
 <a id="viewholders" class="anchor" href="#viewholders" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ViewHolders</h2>
@@ -170,7 +171,7 @@ adapter<span class="pl-k">.</span>edit()
         .removeAll()
         .commit();</pre></div>
 
-<p>All changes you make will automatically be properly animated!</p>
+<p>All changes you make will automatically be animated in the RecyclerView!</p>
 
 <h1>
 <a id="example-project" class="anchor" href="#example-project" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example Project</h1>
