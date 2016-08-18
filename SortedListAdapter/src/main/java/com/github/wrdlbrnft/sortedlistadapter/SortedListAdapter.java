@@ -211,6 +211,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
                 action.perform(mSortedList);
             }
             mSortedList.endBatchedUpdates();
+            mActions.clear();
         }
     }
 
