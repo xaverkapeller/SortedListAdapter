@@ -26,16 +26,68 @@
 <strong>Reduces boilerplate</strong>: All you have to do is implement your <code>ViewHolder</code> based on <code>SortedListAdapter.ViewHolder</code>. The <code>SortedListAdapter</code> takes care of binding data and calls to the notify methods when you add or remove models to the <code>SortedListAdapter</code>.</li>
 </ul>
 
+<p><a href="https://travis-ci.org/Wrdlbrnft/SortedListAdapter"><img src="https://travis-ci.org/Wrdlbrnft/SortedListAdapter.svg?branch=master" alt="Build Status"></a></p>
+
 <h1>
 <a id="how-do-i-add-it-to-my-project" class="anchor" href="#how-do-i-add-it-to-my-project" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How do I add it to my project?</h1>
 
 <p>Just add this dependency to your build.gradle file:</p>
 
-<pre><code>compile 'com.github.wrdlbrnft:sorted-list-adapter:0.1.0.5'
+<pre><code>compile 'com.github.wrdlbrnft:sorted-list-adapter:0.2.0.1'
 </code></pre>
 
+<h2>
+<a id="example-project" class="anchor" href="#example-project" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example Project</h2>
+
+<p>You can find a simple example project in this <a href="https://github.com/Wrdlbrnft/Searchable-RecyclerView-Demo"><strong>GitHub Repository</strong></a>.</p>
+
 <h1>
-<a id="simple-example-with-data-binding" class="anchor" href="#simple-example-with-data-binding" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Simple Example with Data Binding</h1>
+<a id="using-the-adapter" class="anchor" href="#using-the-adapter" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using the Adapter</h1>
+
+<p>Once you have implemented the <code>Adapter</code> you can add and remove models to it with an <code>Editor</code> object which can be accessed through the <code>edit()</code> method. All changes you make with this <code>Editor</code> object are batched and executed together once you call <code>commit()</code> on the <code>Editor</code> instance:</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">final</span> <span class="pl-k">Comparator&lt;<span class="pl-smi">ExampleModel</span>&gt;</span> alphabeticalComparator <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-k">Comparator&lt;<span class="pl-smi">ExampleModel</span>&gt;</span>() {
+    <span class="pl-k">@Override</span>
+    <span class="pl-k">public</span> <span class="pl-k">int</span> <span class="pl-en">compare</span>(<span class="pl-smi">ExampleModel</span> <span class="pl-v">a</span>, <span class="pl-smi">ExampleModel</span> <span class="pl-v">b</span>) {
+        <span class="pl-k">return</span> a<span class="pl-k">.</span>getText()<span class="pl-k">.</span>compareTo(b<span class="pl-k">.</span>getText());
+    }
+};
+
+<span class="pl-k">final</span> <span class="pl-smi">ExampleAdapter</span> adapter <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">ExampleAdapter</span>(context, alphabeticalComparator);
+recyclerView<span class="pl-k">.</span>setAdapter(adapter);
+
+adapter<span class="pl-k">.</span>edit()
+        .add(modelsToAdd)
+        .commit();</pre></div>
+
+<p>As you can see above you can add models to the <code>Adapter</code> with <code>add()</code>. The same way you can remove models with <code>remove()</code>:</p>
+
+<pre><code>adapter.edit()
+        .remove(modelsToRemove)
+        .commit();
+</code></pre>
+
+<p>You can also completely replace all models in the <code>Adapter</code> with another <code>List</code> of models with the <code>replaceAll()</code> method:</p>
+
+<div class="highlight highlight-source-java"><pre>adapter<span class="pl-k">.</span>edit()
+        .replaceAll(newModels)
+        .commit();</pre></div>
+
+<p>Or you can remove all models with <code>removeAll()</code>:</p>
+
+<div class="highlight highlight-source-java"><pre>adapter<span class="pl-k">.</span>edit()
+        .removeAll()
+        .commit();</pre></div>
+
+<p><strong>All</strong> changes you make this way will automatically be animated in the RecyclerView!</p>
+
+<h3>
+<a id="best-practices" class="anchor" href="#best-practices" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Best practices</h3>
+
+<p>Usually all you need is the <code>replaceAll()</code> method. If you have a <code>List</code> of models that you want to show you can add them to the <code>Adapter</code> and if you later get an updated <code>List</code> of models through some network call you can just use <code>replaceAll()</code> to swap them out. The <code>SortedListAdapter</code> will automatically figure out the difference between the two <code>Lists</code> and animate the difference!</p>
+
+<h1>
+<a id="example-with-data-binding" class="anchor" href="#example-with-data-binding" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example with Data Binding</h1>
 
 <h2>
 <a id="models" class="anchor" href="#models" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Models</h2>
@@ -138,45 +190,6 @@
 <li>
 <strong><code>areItemContentsTheSame()</code></strong>: Should check if the content of two models is the same. If your models have implemented <code>equals()</code> correctly you can just use <code>equals()</code> here to compare them. The <code>SortedListAdapter</code> uses this to determine if a model has changed and if a change animation should be triggered in the <code>RecyclverView</code>.</li>
 </ul>
-
-<h2>
-<a id="using-the-adapter" class="anchor" href="#using-the-adapter" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using the Adapter</h2>
-
-<p>Once you have implemented the <code>Adapter</code> you can add and remove models to it with an <code>Editor</code> object which can be accessed through the <code>edit()</code> method. All changes you make with this <code>Editor</code> object are batched and executed together once you call <code>commit()</code> on the <code>Editor</code> instance:</p>
-
-<div class="highlight highlight-source-java"><pre><span class="pl-k">final</span> <span class="pl-k">Comparator&lt;<span class="pl-smi">ExampleModel</span>&gt;</span> alphabeticalComparator <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-k">Comparator&lt;<span class="pl-smi">ExampleModel</span>&gt;</span>() {
-    <span class="pl-k">@Override</span>
-    <span class="pl-k">public</span> <span class="pl-k">int</span> <span class="pl-en">compare</span>(<span class="pl-smi">ExampleModel</span> <span class="pl-v">a</span>, <span class="pl-smi">ExampleModel</span> <span class="pl-v">b</span>) {
-        <span class="pl-k">return</span> a<span class="pl-k">.</span>getText()<span class="pl-k">.</span>compareTo(b<span class="pl-k">.</span>getText());
-    }
-};
-
-<span class="pl-k">final</span> <span class="pl-smi">ExampleAdapter</span> adapter <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">ExampleAdapter</span>(context, alphabeticalComparator);
-recyclerView<span class="pl-k">.</span>setAdapter(adapter);
-
-adapter<span class="pl-k">.</span>edit()
-        .add(modelsToAdd)
-        .remove(modelToRemove)
-        .commit();</pre></div>
-
-<p>You can also completely replace all models in the <code>Adapter</code> with another <code>List</code> of models with the <code>replaceAll()</code> method:</p>
-
-<div class="highlight highlight-source-java"><pre>adapter<span class="pl-k">.</span>edit()
-        .replaceAll(newModels)
-        .commit();</pre></div>
-
-<p>Or you can remove all models with <code>removeAll()</code>:</p>
-
-<div class="highlight highlight-source-java"><pre>adapter<span class="pl-k">.</span>edit()
-        .removeAll()
-        .commit();</pre></div>
-
-<p>All changes you make will automatically be animated in the RecyclerView!</p>
-
-<h1>
-<a id="example-project" class="anchor" href="#example-project" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example Project</h1>
-
-<p>You can find a simple example project in this <a href="https://github.com/Wrdlbrnft/Searchable-RecyclerView-Demo"><strong>GitHub Repository</strong></a>.</p>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/Wrdlbrnft/SortedListAdapter">SortedListAdapter</a> is maintained by <a href="https://github.com/Wrdlbrnft">Wrdlbrnft</a>.</span>
