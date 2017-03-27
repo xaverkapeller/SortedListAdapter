@@ -92,14 +92,14 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
 
         private final List<ComparatorRule> mComparatorRules = new ArrayList<>();
 
-        public <M extends T> ComparatorBuilder setGeneralOrder(Class<M>... modelClasses) {
+        public <M extends T> ComparatorBuilder<T> setGeneralOrder(Class<M>... modelClasses) {
             if (modelClasses.length > 1) {
                 mComparatorRules.add(new GeneralOrderRuleImpl(modelClasses));
             }
             return this;
         }
 
-        public <M extends T> ComparatorBuilder setModelOrder(Class<M> modelClass, Comparator<M> comparator) {
+        public <M extends T> ComparatorBuilder<T> setModelOrder(Class<M> modelClass, Comparator<M> comparator) {
             mComparatorRules.add(new ModelOrderRuleImpl<>(modelClass, comparator));
             return this;
         }
@@ -167,8 +167,6 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         boolean isApplicable(ViewModel a, ViewModel b);
         int apply(ViewModel a, ViewModel b);
     }
-
-    private static final String TAG = "SortedListAdapter";
 
     private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
 
