@@ -132,7 +132,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         }
 
         public <M extends T, VH extends ViewHolder<M>> Builder<T> add(Class<M> modelClass, ViewHolderFactory<VH> holderFactory) {
-            mModules.add(new ModularSortedListAdapterImpl.Module<>(
+            mModules.add(new ModularSortedListAdapterImpl.Module<M, VH>(
                     mModules.size(),
                     modelClass,
                     holderFactory
