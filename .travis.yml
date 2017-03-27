@@ -4,6 +4,7 @@ android:
   components:
   - tools
   - platform-tools
+  - extra-android-support
   - build-tools-25.0.2
   - android-25
 script:
