@@ -35,7 +35,7 @@ dependencies {
 
 final bintrayUser = hasProperty('bintray_user') ? property('bintray_user') : ''
 final bintrayApiKey = hasProperty('bintray_api_key') ? property('bintray_api_key') : ''
-final versionName = hasProperty('version_name') ? property('version_name') : ''
+final versionName = hasProperty('version_name') ? property('version_name') : '0.1.0.0'
 
 task sourceJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs

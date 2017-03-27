@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +20,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -32,6 +30,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @KeepClass
 @KeepClassMembers(KeepSetting.PUBLIC_MEMBERS)
 public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> extends RecyclerView.Adapter<SortedListAdapter.ViewHolder<? extends T>> {
+
+    @KeepClass
+    @KeepClassMembers(KeepSetting.PUBLIC_MEMBERS)
+    public interface Callback {
+        void onEditStarted();
+        void onEditFinished();
+    }
 
     @KeepClass
     @KeepClassMembers(KeepSetting.PUBLIC_MEMBERS)
@@ -171,6 +176,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
     private final BlockingDeque<List<Action<T>>> mCommitQueue = new LinkedBlockingDeque<>();
     private final AtomicBoolean mCommitInProgress = new AtomicBoolean(false);
     private final Facade<T> mFacade = new FacadeImpl<>();
+    private final List<Callback> mCallbacks = new ArrayList<>();
 
     private final LayoutInflater mInflater;
     private final SortedList<T> mSortedList;
@@ -180,6 +186,10 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         mInflater = LayoutInflater.from(context);
         mComparator = comparator;
         mSortedList = new SortedList<>(itemClass, mChangeCache);
+    }
+
+    public void addCallback(Callback callback) {
+        mCallbacks.add(callback);
     }
 
     @Override
@@ -252,7 +262,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         public Editor<T> replaceAll(final List<T> items) {
             mActions.add(list -> {
                 Collections.sort(items, mComparator);
-                for (int i = 0, count = mSortedList.size(); i < count; i++) {
+                for (int i = mSortedList.size() - 1; i >= 0; i--) {
                     final T currentItem = mSortedList.get(i);
                     if (!itemExistsIn(items, currentItem)) {
                         mSortedList.remove(currentItem);
@@ -264,9 +274,12 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         }
 
         private boolean itemExistsIn(List<T> list, T item) {
-            final int index = Collections.binarySearch(list, item, mComparator);
-            final T listItem = list.get(index);
-            return listItem.isSameModelAs(index);
+            for (T listItem : list) {
+                if (listItem.isSameModelAs(item)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         @Override
@@ -285,39 +298,57 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         private void initializeCommit(List<Action<T>> actions) {
             mCommitQueue.add(actions);
             if (!mCommitInProgress.getAndSet(true)) {
-                final Thread updateThread = new Thread(this::performCommit);
-                updateThread.start();
+                startEdit();
             }
         }
 
-        private void performCommit() {
+        private void startEdit() {
+            final Thread updateThread = new Thread(this::performEdit);
+            updateThread.start();
+            notifyEditStarted();
+        }
+
+        private void notifyEditStarted() {
+            for (Callback callback : mCallbacks) {
+                callback.onEditStarted();
+            }
+        }
+
+        private void performEdit() {
             try {
-                final List<Action<T>> actions = mCommitQueue.pollFirst(10, TimeUnit.SECONDS);
-                if (actions == null) {
-                    return;
+                while (!mCommitQueue.isEmpty()) {
+                    final List<Action<T>> actions = mCommitQueue.pollFirst();
+                    if (actions == null) {
+                        return;
+                    }
+                    mChangeCache.startCaching();
+                    mSortedList.beginBatchedUpdates();
+                    for (Action<T> action : actions) {
+                        action.perform(mSortedList);
+                    }
+                    mSortedList.endBatchedUpdates();
+                    final List<T> currentState = new ArrayList<>();
+                    for (int i = 0, count = mSortedList.size(); i < count; i++) {
+                        currentState.add(mSortedList.get(i));
+                    }
+                    mFacade.addState(currentState);
+                    MAIN_HANDLER.post(this::applyCommit);
                 }
-                mChangeCache.startCaching();
-                mSortedList.beginBatchedUpdates();
-                for (Action<T> action : actions) {
-                    action.perform(mSortedList);
-                }
-                mSortedList.endBatchedUpdates();
-                final List<T> currentState = new ArrayList<>();
-                for (int i = 0, count = mSortedList.size(); i < count; i++) {
-                    currentState.add(mSortedList.get(i));
-                }
-                mFacade.addState(currentState);
-                MAIN_HANDLER.post(this::finalizeCommit);
-            } catch (InterruptedException e) {
-                Log.v(TAG, "Commit Thread has been interrupted. Current commit has been discarded and commit queue is paused.", e);
             } finally {
                 mCommitInProgress.set(false);
+                MAIN_HANDLER.post(this::notifyEditFinished);
             }
         }
 
-        private void finalizeCommit() {
+        private void applyCommit() {
             mFacade.moveToNextState();
             mChangeCache.flushChanges();
+        }
+
+        private void notifyEditFinished() {
+            for (Callback callback : mCallbacks) {
+                callback.onEditFinished();
+            }
         }
     }
 
