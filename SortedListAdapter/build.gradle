@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.wrdlbrnft.proguard-annotations' version '0.3.0.4'
+    id 'com.github.wrdlbrnft.proguard-annotations' version '0.3.0.9'
     id 'me.tatarka.retrolambda' version '3.6.0'
 }
 

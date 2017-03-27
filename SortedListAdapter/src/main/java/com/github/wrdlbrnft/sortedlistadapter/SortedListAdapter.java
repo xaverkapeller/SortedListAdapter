@@ -92,7 +92,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
 
         private final List<ComparatorRule> mComparatorRules = new ArrayList<>();
 
-        public <M extends T> ComparatorBuilder<T> setGeneralOrder(Class<M>... modelClasses) {
+        public ComparatorBuilder<T> setGeneralOrder(Class<? extends T>... modelClasses) {
             if (modelClasses.length > 1) {
                 mComparatorRules.add(new GeneralOrderRuleImpl(modelClasses));
             }
