@@ -187,6 +187,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         return onCreateViewHolder(mInflater, parent, viewType);
     }
 
+    @KeepMember
     protected abstract ViewHolder<? extends T> onCreateViewHolder(LayoutInflater inflater, ViewGroup parent, int viewType);
 
     @Override
