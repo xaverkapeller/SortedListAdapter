@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 
 import com.github.wrdlbrnft.proguardannotations.KeepClass;
 import com.github.wrdlbrnft.proguardannotations.KeepClassMembers;
+import com.github.wrdlbrnft.proguardannotations.KeepMember;
 import com.github.wrdlbrnft.proguardannotations.KeepSetting;
 
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
             performBind(item);
         }
 
+        @KeepMember
         protected abstract void performBind(T item);
 
         public final T getCurrentItem() {
