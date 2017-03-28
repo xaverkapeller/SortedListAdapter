@@ -14,7 +14,9 @@ import com.github.wrdlbrnft.proguardannotations.KeepClassMembers;
 import com.github.wrdlbrnft.proguardannotations.KeepMember;
 import com.github.wrdlbrnft.proguardannotations.KeepSetting;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -99,7 +101,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
             return this;
         }
 
-        public <M extends T> ComparatorBuilder<T> setModelOrder(Class<M> modelClass, Comparator<M> comparator) {
+        public <M extends T> ComparatorBuilder<T> setOrderForModel(Class<M> modelClass, Comparator<M> comparator) {
             mComparatorRules.add(new ModelOrderRuleImpl<>(modelClass, comparator));
             return this;
         }
@@ -178,10 +180,12 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
 
     private final LayoutInflater mInflater;
     private final SortedList<T> mSortedList;
+    private final Class<T> mItemClass;
     private final Comparator<T> mComparator;
 
     public SortedListAdapter(Context context, Class<T> itemClass, Comparator<T> comparator) {
         mInflater = LayoutInflater.from(context);
+        mItemClass = itemClass;
         mComparator = comparator;
         mSortedList = new SortedList<>(itemClass, mChangeCache);
     }
@@ -259,25 +263,19 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         @Override
         public Editor<T> replaceAll(final List<T> items) {
             mActions.add(list -> {
-                Collections.sort(items, mComparator);
+                @SuppressWarnings("unchecked")
+                final T[] array = items.toArray((T[]) Array.newInstance(mItemClass, items.size()));
+                Arrays.sort(array, mComparator);
                 for (int i = mSortedList.size() - 1; i >= 0; i--) {
                     final T currentItem = mSortedList.get(i);
-                    if (!itemExistsIn(items, currentItem)) {
+                    final int index = Arrays.binarySearch(array, currentItem, mComparator);
+                    if (index < 0) {
                         mSortedList.remove(currentItem);
                     }
                 }
                 mSortedList.addAll(items);
             });
             return this;
-        }
-
-        private boolean itemExistsIn(List<T> list, T item) {
-            for (T listItem : list) {
-                if (listItem.isSameModelAs(item)) {
-                    return true;
-                }
-            }
-            return false;
         }
 
         @Override
