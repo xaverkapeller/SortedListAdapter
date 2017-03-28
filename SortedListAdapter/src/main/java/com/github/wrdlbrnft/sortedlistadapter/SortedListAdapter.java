@@ -273,7 +273,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
                         mSortedList.remove(currentItem);
                     }
                 }
-                mSortedList.addAll(items);
+                mSortedList.addAll(array, true);
             });
             return this;
         }
