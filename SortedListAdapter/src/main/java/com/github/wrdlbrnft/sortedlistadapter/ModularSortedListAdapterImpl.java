@@ -1,6 +1,7 @@
 package com.github.wrdlbrnft.sortedlistadapter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -35,10 +36,11 @@ class ModularSortedListAdapterImpl<T extends SortedListAdapter.ViewModel> extend
     }
 
     @Override
-    protected ViewHolder<? extends T> onCreateViewHolder(LayoutInflater inflater, ViewGroup parent, int viewType) {
+    @NonNull
+    protected ViewHolder<? extends T> onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent, int viewType) {
         for (Module<?, ?> module : mModules) {
             if (module.mViewType == viewType) {
-                return (ViewHolder<? extends T>) module.mHolderFactory.create(inflater, parent, false);
+                return (ViewHolder<? extends T>) module.mHolderFactory.create(inflater, parent);
             }
         }
 

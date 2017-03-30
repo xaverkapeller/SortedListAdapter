@@ -3,6 +3,7 @@ package com.github.wrdlbrnft.sortedlistadapter;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,7 +18,7 @@ import com.github.wrdlbrnft.proguardannotations.KeepSetting;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.BlockingDeque;
@@ -43,19 +44,13 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
     @KeepClass
     @KeepClassMembers(KeepSetting.PUBLIC_MEMBERS)
     public interface Editor<T extends ViewModel> {
-        Editor<T> add(T item);
-        Editor<T> add(List<T> items);
-        Editor<T> remove(T item);
-        Editor<T> remove(List<T> items);
-        Editor<T> replaceAll(List<T> items);
+        Editor<T> add(@NonNull T item);
+        Editor<T> add(@NonNull Collection<T> items);
+        Editor<T> remove(@NonNull T item);
+        Editor<T> remove(@NonNull Collection<T> items);
+        Editor<T> replaceAll(@NonNull Collection<T> items);
         Editor<T> removeAll();
         void commit();
-    }
-
-    @KeepClass
-    @KeepClassMembers(KeepSetting.PUBLIC_MEMBERS)
-    public interface Filter<T> {
-        boolean test(T item);
     }
 
     @KeepClass
@@ -64,7 +59,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
 
         private T mCurrentItem;
 
-        public ViewHolder(View itemView) {
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
         }
 
@@ -74,7 +69,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         }
 
         @KeepMember
-        protected abstract void performBind(T item);
+        protected abstract void performBind(@NonNull T item);
 
         public final T getCurrentItem() {
             return mCurrentItem;
@@ -84,8 +79,8 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
     @KeepClass
     @KeepClassMembers(KeepSetting.PUBLIC_MEMBERS)
     public interface ViewModel {
-        <T> boolean isSameModelAs(T model);
-        <T> boolean isContentTheSameAs(T model);
+        <T> boolean isSameModelAs(@NonNull T model);
+        <T> boolean isContentTheSameAs(@NonNull T model);
     }
 
     @KeepClass
@@ -94,14 +89,14 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
 
         private final List<ComparatorRule> mComparatorRules = new ArrayList<>();
 
-        public ComparatorBuilder<T> setGeneralOrder(Class<? extends T>... modelClasses) {
+        public ComparatorBuilder<T> setGeneralOrder(@NonNull Class<? extends T>... modelClasses) {
             if (modelClasses.length > 1) {
                 mComparatorRules.add(new GeneralOrderRuleImpl(modelClasses));
             }
             return this;
         }
 
-        public <M extends T> ComparatorBuilder<T> setOrderForModel(Class<M> modelClass, Comparator<M> comparator) {
+        public <M extends T> ComparatorBuilder<T> setOrderForModel(@NonNull Class<M> modelClass, @NonNull Comparator<M> comparator) {
             mComparatorRules.add(new ModelOrderRuleImpl<>(modelClass, comparator));
             return this;
         }
@@ -121,7 +116,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
     @KeepClass
     @KeepClassMembers(KeepSetting.PUBLIC_MEMBERS)
     public interface ViewHolderFactory<VH extends ViewHolder<?>> {
-        VH create(LayoutInflater inflater, ViewGroup parent, boolean attachToRoot);
+        VH create(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent);
     }
 
     @KeepClass
@@ -134,13 +129,13 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         private final Class<T> mItemClass;
         private final Comparator<T> mComparator;
 
-        public Builder(Context context, Class<T> itemClass, Comparator<T> comparator) {
+        public Builder(@NonNull Context context, @NonNull Class<T> itemClass, @NonNull Comparator<T> comparator) {
             mContext = context;
             mItemClass = itemClass;
             mComparator = comparator;
         }
 
-        public <M extends T, VH extends ViewHolder<M>> Builder<T> add(Class<M> modelClass, ViewHolderFactory<VH> holderFactory) {
+        public <M extends T, VH extends ViewHolder<M>> Builder<T> add(@NonNull Class<M> modelClass, @NonNull ViewHolderFactory<VH> holderFactory) {
             mModules.add(new ModularSortedListAdapterImpl.Module<M, VH>(
                     mModules.size(),
                     modelClass,
@@ -183,14 +178,14 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
     private final Class<T> mItemClass;
     private final Comparator<T> mComparator;
 
-    public SortedListAdapter(Context context, Class<T> itemClass, Comparator<T> comparator) {
+    public SortedListAdapter(@NonNull Context context, @NonNull Class<T> itemClass, @NonNull Comparator<T> comparator) {
         mInflater = LayoutInflater.from(context);
         mItemClass = itemClass;
         mComparator = comparator;
         mSortedList = new SortedList<>(itemClass, mChangeCache);
     }
 
-    public void addCallback(Callback callback) {
+    public void addCallback(@NonNull Callback callback) {
         mCallbacks.add(callback);
     }
 
@@ -200,7 +195,8 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
     }
 
     @KeepMember
-    protected abstract ViewHolder<? extends T> onCreateViewHolder(LayoutInflater inflater, ViewGroup parent, int viewType);
+    @NonNull
+    protected abstract ViewHolder<? extends T> onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent, int viewType);
 
     @Override
     public final void onBindViewHolder(ViewHolder<? extends T> holder, int position) {
@@ -208,6 +204,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         ((ViewHolder<T>) holder).bind(item);
     }
 
+    @NonNull
     public final Editor<T> edit() {
         return new EditorImpl();
     }
@@ -217,6 +214,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         return mFacade.size();
     }
 
+    @NonNull
     public T getItem(int position) {
         return mFacade.getItem(position);
     }
@@ -230,30 +228,30 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         private final List<Action<T>> mActions = new ArrayList<>();
 
         @Override
-        public Editor<T> add(final T item) {
+        public Editor<T> add(@NonNull T item) {
             mActions.add(list -> mSortedList.add(item));
             return this;
         }
 
         @Override
-        public Editor<T> add(final List<T> items) {
-            mActions.add(list -> {
-                Collections.sort(items, mComparator);
-                mSortedList.addAll(items);
-            });
+        public Editor<T> add(@NonNull Collection<T> items) {
+            mActions.add(list -> mSortedList.addAll(items));
             return this;
         }
 
         @Override
-        public Editor<T> remove(final T item) {
+        public Editor<T> remove(@NonNull T item) {
             mActions.add(list -> mSortedList.remove(item));
             return this;
         }
 
         @Override
-        public Editor<T> remove(final List<T> items) {
+        public Editor<T> remove(@NonNull Collection<T> items) {
             mActions.add(list -> {
-                for (T item : items) {
+                @SuppressWarnings("unchecked")
+                final T[] array = items.toArray((T[]) Array.newInstance(mItemClass, items.size()));
+                Arrays.sort(array, mComparator);
+                for (T item : array) {
                     mSortedList.remove(item);
                 }
             });
@@ -261,7 +259,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         }
 
         @Override
-        public Editor<T> replaceAll(final List<T> items) {
+        public Editor<T> replaceAll(@NonNull Collection<T> items) {
             mActions.add(list -> {
                 @SuppressWarnings("unchecked")
                 final T[] array = items.toArray((T[]) Array.newInstance(mItemClass, items.size()));
