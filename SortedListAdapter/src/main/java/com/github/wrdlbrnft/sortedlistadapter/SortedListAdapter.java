@@ -1,10 +1,7 @@
 package com.github.wrdlbrnft.sortedlistadapter;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,16 +11,14 @@ import com.github.wrdlbrnft.proguardannotations.KeepClass;
 import com.github.wrdlbrnft.proguardannotations.KeepClassMembers;
 import com.github.wrdlbrnft.proguardannotations.KeepMember;
 import com.github.wrdlbrnft.proguardannotations.KeepSetting;
+import com.github.wrdlbrnft.sortedlistadapter.itemmanager.ChangeSet;
+import com.github.wrdlbrnft.sortedlistadapter.itemmanager.ItemManager;
+import com.github.wrdlbrnft.sortedlistadapter.itemmanager.sortedlist.SortedListItemManager;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created with Android Studio
@@ -89,19 +84,20 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
 
         private final List<ComparatorRule> mComparatorRules = new ArrayList<>();
 
-        public ComparatorBuilder<T> setGeneralOrder(@NonNull Class<? extends T>... modelClasses) {
+        @SafeVarargs
+        public final ComparatorBuilder<T> setGeneralOrder(@NonNull Class<? extends T>... modelClasses) {
             if (modelClasses.length > 1) {
                 mComparatorRules.add(new GeneralOrderRuleImpl(modelClasses));
             }
             return this;
         }
 
-        public <M extends T> ComparatorBuilder<T> setOrderForModel(@NonNull Class<M> modelClass, @NonNull Comparator<M> comparator) {
+        public final <M extends T> ComparatorBuilder<T> setOrderForModel(@NonNull Class<M> modelClass, @NonNull Comparator<M> comparator) {
             mComparatorRules.add(new ModelOrderRuleImpl<>(modelClass, comparator));
             return this;
         }
 
-        public Comparator<T> build() {
+        public final Comparator<T> build() {
             return (a, b) -> {
                 for (ComparatorRule comparatorRule : mComparatorRules) {
                     if (comparatorRule.isApplicable(a, b)) {
@@ -149,44 +145,52 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         }
     }
 
-    interface Facade<T> {
-        T getItem(int position);
-        int size();
-        void addState(List<T> data);
-        void moveToNextState();
-    }
-
-    private interface Change {
-        void apply();
-    }
-
     interface ComparatorRule {
         boolean isApplicable(ViewModel a, ViewModel b);
         int apply(ViewModel a, ViewModel b);
     }
 
-    private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
+    private final ItemManager.TransactionCallback mTransactionCallback = new ItemManager.TransactionCallback() {
+        @Override
+        public void onTransactionsInProgress() {
+            for (Callback callback : mCallbacks) {
+                callback.onEditStarted();
+            }
+        }
 
-    private final ChangeCache mChangeCache = new ChangeCache();
-    private final BlockingDeque<List<Action<T>>> mCommitQueue = new LinkedBlockingDeque<>();
-    private final AtomicBoolean mCommitInProgress = new AtomicBoolean(false);
-    private final Facade<T> mFacade = new FacadeImpl<>();
+        @Override
+        public void onTransactionsFinished() {
+            for (Callback callback : mCallbacks) {
+                callback.onEditFinished();
+            }
+        }
+
+        @Override
+        public void onChangeSetAvailable(ChangeSet changeSet) {
+            changeSet.applyTo(
+                    SortedListAdapter.this::notifyItemMoved,
+                    SortedListAdapter.this::notifyItemRangeInserted,
+                    SortedListAdapter.this::notifyItemRangeRemoved,
+                    SortedListAdapter.this::notifyItemRangeChanged
+            );
+        }
+    };
+
     private final List<Callback> mCallbacks = new ArrayList<>();
-
+    private final ItemManager<T> mItemManager;
     private final LayoutInflater mInflater;
-    private final SortedList<T> mSortedList;
-    private final Class<T> mItemClass;
-    private final Comparator<T> mComparator;
 
     public SortedListAdapter(@NonNull Context context, @NonNull Class<T> itemClass, @NonNull Comparator<T> comparator) {
         mInflater = LayoutInflater.from(context);
-        mItemClass = itemClass;
-        mComparator = comparator;
-        mSortedList = new SortedList<>(itemClass, mChangeCache);
+        mItemManager = new SortedListItemManager<>(itemClass, comparator, mTransactionCallback);
     }
 
     public void addCallback(@NonNull Callback callback) {
         mCallbacks.add(callback);
+    }
+
+    public void removeCallback(@NonNull Callback callback) {
+        mCallbacks.remove(callback);
     }
 
     @Override
@@ -206,212 +210,17 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
 
     @NonNull
     public final Editor<T> edit() {
-        return new EditorImpl();
+        final ItemManager.Transaction<T> transaction = mItemManager.newTransaction();
+        return new EditorImpl<>(transaction);
     }
 
     @Override
     public final int getItemCount() {
-        return mFacade.size();
+        return mItemManager.getItemCount();
     }
 
     @NonNull
     public T getItem(int position) {
-        return mFacade.getItem(position);
-    }
-
-    private interface Action<T extends ViewModel> {
-        void perform(SortedList<T> list);
-    }
-
-    private class EditorImpl implements Editor<T> {
-
-        private final List<Action<T>> mActions = new ArrayList<>();
-
-        @Override
-        public Editor<T> add(@NonNull T item) {
-            mActions.add(list -> mSortedList.add(item));
-            return this;
-        }
-
-        @Override
-        public Editor<T> add(@NonNull Collection<T> items) {
-            mActions.add(list -> mSortedList.addAll(items));
-            return this;
-        }
-
-        @Override
-        public Editor<T> remove(@NonNull T item) {
-            mActions.add(list -> mSortedList.remove(item));
-            return this;
-        }
-
-        @Override
-        public Editor<T> remove(@NonNull Collection<T> items) {
-            mActions.add(list -> {
-                @SuppressWarnings("unchecked")
-                final T[] array = items.toArray((T[]) Array.newInstance(mItemClass, items.size()));
-                Arrays.sort(array, mComparator);
-                for (T item : array) {
-                    mSortedList.remove(item);
-                }
-            });
-            return this;
-        }
-
-        @Override
-        public Editor<T> replaceAll(@NonNull Collection<T> items) {
-            mActions.add(list -> {
-                @SuppressWarnings("unchecked")
-                final T[] array = items.toArray((T[]) Array.newInstance(mItemClass, items.size()));
-                Arrays.sort(array, mComparator);
-                for (int i = mSortedList.size() - 1; i >= 0; i--) {
-                    final T currentItem = mSortedList.get(i);
-                    final int index = Arrays.binarySearch(array, currentItem, mComparator);
-                    if (index < 0) {
-                        mSortedList.remove(currentItem);
-                    }
-                }
-                mSortedList.addAll(array, true);
-            });
-            return this;
-        }
-
-        @Override
-        public Editor<T> removeAll() {
-            mActions.add(list -> mSortedList.clear());
-            return this;
-        }
-
-        @Override
-        public void commit() {
-            final List<Action<T>> actions = new ArrayList<>(mActions);
-            mActions.clear();
-            MAIN_HANDLER.post(() -> initializeCommit(actions));
-        }
-
-        private void initializeCommit(List<Action<T>> actions) {
-            mCommitQueue.add(actions);
-            if (!mCommitInProgress.getAndSet(true)) {
-                startEdit();
-            }
-        }
-
-        private void startEdit() {
-            final Thread updateThread = new Thread(this::performEdit);
-            updateThread.start();
-            notifyEditStarted();
-        }
-
-        private void notifyEditStarted() {
-            for (Callback callback : mCallbacks) {
-                callback.onEditStarted();
-            }
-        }
-
-        private void performEdit() {
-            try {
-                while (!mCommitQueue.isEmpty()) {
-                    final List<Action<T>> actions = mCommitQueue.pollFirst();
-                    if (actions == null) {
-                        return;
-                    }
-                    mChangeCache.startCaching();
-                    mSortedList.beginBatchedUpdates();
-                    for (Action<T> action : actions) {
-                        action.perform(mSortedList);
-                    }
-                    mSortedList.endBatchedUpdates();
-                    final List<T> currentState = new ArrayList<>();
-                    for (int i = 0, count = mSortedList.size(); i < count; i++) {
-                        currentState.add(mSortedList.get(i));
-                    }
-                    mFacade.addState(currentState);
-                    MAIN_HANDLER.post(this::applyCommit);
-                }
-            } finally {
-                mCommitInProgress.set(false);
-                MAIN_HANDLER.post(this::notifyEditFinished);
-            }
-        }
-
-        private void applyCommit() {
-            mFacade.moveToNextState();
-            mChangeCache.flushChanges();
-        }
-
-        private void notifyEditFinished() {
-            for (Callback callback : mCallbacks) {
-                callback.onEditFinished();
-            }
-        }
-    }
-
-    private class ChangeCache extends SortedList.Callback<T> {
-
-        private final List<List<Change>> mChangeQueue = new ArrayList<>();
-
-        private List<Change> mCurrentChanges;
-
-        void startCaching() {
-            synchronized (mChangeQueue) {
-                mCurrentChanges = new ArrayList<>();
-                mChangeQueue.add(mCurrentChanges);
-            }
-        }
-
-        void flushChanges() {
-            synchronized (mChangeQueue) {
-                if (mChangeQueue.isEmpty()) {
-                    return;
-                }
-                final List<Change> changes = mChangeQueue.remove(0);
-                for (Change change : changes) {
-                    change.apply();
-                }
-            }
-        }
-
-        @Override
-        public int compare(T a, T b) {
-            return mComparator.compare(a, b);
-        }
-
-        @Override
-        public boolean areContentsTheSame(T oldItem, T newItem) {
-            return oldItem.isContentTheSameAs(newItem);
-        }
-
-        @Override
-        public boolean areItemsTheSame(T item1, T item2) {
-            return item1.isSameModelAs(item2);
-        }
-
-        @Override
-        public void onInserted(int position, int count) {
-            synchronized (mChangeQueue) {
-                mCurrentChanges.add(() -> notifyItemRangeInserted(position, count));
-            }
-        }
-
-        @Override
-        public void onRemoved(int position, int count) {
-            synchronized (mChangeQueue) {
-                mCurrentChanges.add(() -> notifyItemRangeRemoved(position, count));
-            }
-        }
-
-        @Override
-        public void onMoved(int fromPosition, int toPosition) {
-            synchronized (mChangeQueue) {
-                mCurrentChanges.add(() -> notifyItemMoved(fromPosition, toPosition));
-            }
-        }
-
-        @Override
-        public void onChanged(int position, int count) {
-            synchronized (mChangeQueue) {
-                mCurrentChanges.add(() -> notifyItemRangeChanged(position, count));
-            }
-        }
+        return mItemManager.getItem(position);
     }
 }

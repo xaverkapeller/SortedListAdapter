@@ -1,4 +1,4 @@
-package com.github.wrdlbrnft.sortedlistadapter;
+package com.github.wrdlbrnft.sortedlistadapter.itemmanager.sortedlist;
 
 import java.util.ArrayDeque;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.Queue;
  * User: Xaver<br>
  * Date: 27/03/2017
  */
-class FacadeImpl<T> implements SortedListAdapter.Facade<T> {
+class FacadeImpl<T> implements SortedListItemManager.Facade<T> {
 
     private Queue<List<T>> mBacklog = new ArrayDeque<>();
     private List<T> mCurrentState = null;
