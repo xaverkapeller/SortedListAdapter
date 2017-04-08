@@ -12,6 +12,7 @@ import com.github.wrdlbrnft.modularadapter.itemmanager.ModifiableItemManager;
 import com.github.wrdlbrnft.modularadapter.itemmanager.sortedlist.SortedListItemManager;
 import com.github.wrdlbrnft.proguardannotations.KeepClass;
 import com.github.wrdlbrnft.proguardannotations.KeepClassMembers;
+import com.github.wrdlbrnft.proguardannotations.KeepMember;
 import com.github.wrdlbrnft.proguardannotations.KeepSetting;
 
 import java.util.ArrayList;
@@ -128,6 +129,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
 
     @NonNull
     @SuppressWarnings("unchecked")
+    @KeepMember
     protected abstract SortedListAdapter.ViewHolder<? extends T> onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent, int viewType);
 
     public void addCallback(@NonNull Callback callback) {
