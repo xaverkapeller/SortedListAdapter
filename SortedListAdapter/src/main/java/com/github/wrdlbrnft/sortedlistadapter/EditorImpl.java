@@ -2,7 +2,7 @@ package com.github.wrdlbrnft.sortedlistadapter;
 
 import android.support.annotation.NonNull;
 
-import com.github.wrdlbrnft.sortedlistadapter.itemmanager.ItemManager;
+import com.github.wrdlbrnft.modularadapter.itemmanager.ModifiableItemManager;
 
 import java.util.Collection;
 
@@ -14,9 +14,9 @@ import java.util.Collection;
 
 class EditorImpl<T extends SortedListAdapter.ViewModel> implements SortedListAdapter.Editor<T> {
 
-    private final ItemManager.Transaction<T> mTransaction;
+    private final ModifiableItemManager.Transaction<T> mTransaction;
 
-    EditorImpl(ItemManager.Transaction<T> transaction) {
+    EditorImpl(ModifiableItemManager.Transaction<T> transaction) {
         mTransaction = transaction;
     }
 

@@ -30,7 +30,9 @@ android {
 }
 
 dependencies {
-    provided 'com.android.support:recyclerview-v7:25.3.0'
+    provided 'com.android.support:recyclerview-v7:25.3.1'
+    compile 'com.github.wrdlbrnft:modular-adapter:0.2.0.6'
+    compile 'com.github.wrdlbrnft:sorted-list-item-manager:0.2.0.6'
 }
 
 final bintrayUser = hasProperty('bintray_user') ? property('bintray_user') : ''

@@ -15,7 +15,7 @@ import java.util.List;
  */
 class ModularSortedListAdapterImpl<T extends SortedListAdapter.ViewModel> extends SortedListAdapter<T> {
 
-    static class Module<M extends ViewModel, VH extends ViewHolder<M>> {
+    static class Module<M extends SortedListAdapter.ViewModel, VH extends ViewHolder<M>> {
 
         private final int mViewType;
         private final Class<M> mItemClass;
@@ -30,14 +30,14 @@ class ModularSortedListAdapterImpl<T extends SortedListAdapter.ViewModel> extend
 
     private final List<Module<?, ?>> mModules;
 
-    public ModularSortedListAdapterImpl(Context context, Class<T> itemClass, Comparator<T> comparator, List<Module<?, ?>> modules) {
+    ModularSortedListAdapterImpl(Context context, Class<T> itemClass, Comparator<T> comparator, List<Module<?, ?>> modules) {
         super(context, itemClass, comparator);
         mModules = modules;
     }
 
-    @Override
     @NonNull
-    protected ViewHolder<? extends T> onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent, int viewType) {
+    @Override
+    protected SortedListAdapter.ViewHolder<? extends T> onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent, int viewType) {
         for (Module<?, ?> module : mModules) {
             if (module.mViewType == viewType) {
                 return (ViewHolder<? extends T>) module.mHolderFactory.create(inflater, parent);
@@ -50,7 +50,7 @@ class ModularSortedListAdapterImpl<T extends SortedListAdapter.ViewModel> extend
     @Override
     public int getItemViewType(int position) {
         final T item = getItem(position);
-        final Class<? extends ViewModel> itemClass = item.getClass();
+        final Class<?> itemClass = item.getClass();
         for (Module<?, ?> module : mModules) {
             if (module.mItemClass.isAssignableFrom(itemClass)) {
                 return module.mViewType;

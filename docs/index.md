@@ -1,6 +1,3 @@
-# SortedListAdapter
-
-The `RecyclerView.Adapter` that makes your life easy!
 
  - **Based on the SortedList**: Uses a `Comparator` to sort the elements in your `RecyclerView`. By using a `Comparator` the `SortedList` takes care of managing the models in the `Adapter` in an efficient way and triggers all view animations for you!
  - **Reduces boilerplate**: All you have to do is implement your `ViewHolder` based on `SortedListAdapter.ViewHolder`. The `SortedListAdapter` takes care of binding data and calls to the notify methods when you add or remove models to the `SortedListAdapter`.
