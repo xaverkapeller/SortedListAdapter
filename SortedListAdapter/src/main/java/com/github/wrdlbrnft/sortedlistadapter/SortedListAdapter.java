@@ -49,7 +49,7 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
 
     @KeepClass
     @KeepClassMembers(KeepSetting.PUBLIC_MEMBERS)
-    public abstract static class ViewHolder<T extends ViewModel> extends ModularAdapter.ViewHolder {
+    public abstract static class ViewHolder<T extends ViewModel> extends ModularAdapter.ViewHolder<T> {
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
