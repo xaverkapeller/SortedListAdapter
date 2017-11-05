@@ -16,7 +16,7 @@ SortedListAdapter is based on the [**ModularAdapter**](https://wrdlbrnft.github.
 Just add this dependency to your build.gradle file:
 
 ```
-compile 'com.github.wrdlbrnft:sorted-list-adapter:0.3.0.20'
+compile 'com.github.wrdlbrnft:sorted-list-adapter:0.3.0.22'
 ```
 
 ## Example Project
