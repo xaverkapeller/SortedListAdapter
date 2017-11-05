@@ -26,8 +26,8 @@ android {
 
 dependencies {
     compileOnly 'com.android.support:recyclerview-v7:26.1.0'
-    api 'com.github.wrdlbrnft:modular-adapter:0.3.0.8'
-    api 'com.github.wrdlbrnft:sorted-list-item-manager:0.3.0.8'
+    api 'com.github.wrdlbrnft:modular-adapter:0.3.0.10'
+    api 'com.github.wrdlbrnft:sorted-list-item-manager:0.3.0.10'
 }
 
 final bintrayUser = System.getenv('BINTRAY_USER') ?: ''
@@ -50,7 +50,12 @@ publishing {
 
             pom.withXml {
                 def dependenciesNode = asNode().appendNode('dependencies')
-                project.configurations.compile.allDependencies.each {
+                final configurations = [
+                        project.configurations.compile,
+                        project.configurations.api,
+                        project.configurations.implementation,
+                ]
+                configurations*.allDependencies.each {
                     if (it.group != null && it.name != null && it.version != null) {
                         def dependencyNode = dependenciesNode.appendNode('dependency')
                         dependencyNode.appendNode 'groupId', it.group
