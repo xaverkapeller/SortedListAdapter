@@ -1,25 +1,20 @@
-plugins {
-    id 'com.github.wrdlbrnft.proguard-annotations' version '0.3.0.11'
-    id 'me.tatarka.retrolambda' version '3.6.0'
-}
-
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    compileSdkVersion 26
+    buildToolsVersion '26.0.2'
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 25
+        minSdkVersion 14
+        targetSdkVersion 26
     }
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -30,14 +25,14 @@ android {
 }
 
 dependencies {
-    provided 'com.android.support:recyclerview-v7:25.3.1'
-    compile 'com.github.wrdlbrnft:modular-adapter:0.2.0.6'
-    compile 'com.github.wrdlbrnft:sorted-list-item-manager:0.2.0.6'
+    compileOnly 'com.android.support:recyclerview-v7:26.1.0'
+    api 'com.github.wrdlbrnft:modular-adapter:0.3.0.8'
+    api 'com.github.wrdlbrnft:sorted-list-item-manager:0.3.0.8'
 }
 
-final bintrayUser = hasProperty('bintray_user') ? property('bintray_user') : ''
-final bintrayApiKey = hasProperty('bintray_api_key') ? property('bintray_api_key') : ''
-final versionName = hasProperty('version_name') ? property('version_name') : '0.1.0.0'
+final bintrayUser = System.getenv('BINTRAY_USER') ?: ''
+final bintrayApiKey = System.getenv('BINTRAY_API_KEY') ?: ''
+final versionName =  "0.3.0.${System.getenv('TRAVIS_BUILD_NUMBER') ?: 0}"
 
 task sourceJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs

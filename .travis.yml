@@ -5,9 +5,9 @@ android:
   - tools
   - platform-tools
   - extra-android-m2repository
-  - build-tools-25.0.2
-  - android-25
+  - build-tools-26.0.2
+  - android-26
 script:
   - ./gradlew clean build test
 after_success:
-  - ./gradlew bintrayUpload -Pbintray_user=$BINTRAY_USER -Pbintray_api_key=$BINTRAY_API_KEY -Pversion_name=0.2.0.$TRAVIS_BUILD_NUMBER
+  - ./gradlew bintrayUpload

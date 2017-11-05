@@ -10,10 +10,6 @@ import com.github.wrdlbrnft.modularadapter.ModularAdapter;
 import com.github.wrdlbrnft.modularadapter.itemmanager.ItemManager;
 import com.github.wrdlbrnft.modularadapter.itemmanager.ModifiableItemManager;
 import com.github.wrdlbrnft.modularadapter.itemmanager.sortedlist.SortedListItemManager;
-import com.github.wrdlbrnft.proguardannotations.KeepClass;
-import com.github.wrdlbrnft.proguardannotations.KeepClassMembers;
-import com.github.wrdlbrnft.proguardannotations.KeepMember;
-import com.github.wrdlbrnft.proguardannotations.KeepSetting;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,19 +21,13 @@ import java.util.List;
  * User: Xaver
  * Date: 13/08/16
  */
-@KeepClass
-@KeepClassMembers(KeepSetting.PUBLIC_MEMBERS)
 public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> extends ModularAdapter<T> {
 
-    @KeepClass
-    @KeepClassMembers(KeepSetting.PUBLIC_MEMBERS)
     public interface Callback {
         void onEditStarted();
         void onEditFinished();
     }
 
-    @KeepClass
-    @KeepClassMembers(KeepSetting.PUBLIC_MEMBERS)
     public interface Editor<T extends ViewModel> {
         Editor<T> add(@NonNull T item);
         Editor<T> add(@NonNull Collection<T> items);
@@ -48,8 +38,6 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         void commit();
     }
 
-    @KeepClass
-    @KeepClassMembers(KeepSetting.PUBLIC_MEMBERS)
     public abstract static class ViewHolder<T extends ViewModel> extends ModularAdapter.ViewHolder<T> {
 
         public ViewHolder(@NonNull View itemView) {
@@ -57,24 +45,16 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
         }
     }
 
-    @KeepClass
-    @KeepClassMembers(KeepSetting.PUBLIC_MEMBERS)
     public interface ViewModel extends SortedListItemManager.ViewModel {
     }
 
-    @KeepClass
-    @KeepClassMembers(KeepSetting.PUBLIC_MEMBERS)
     public static class ComparatorBuilder<T extends ViewModel> extends com.github.wrdlbrnft.modularadapter.itemmanager.sortedlist.ComparatorBuilder<T> {
     }
 
-    @KeepClass
-    @KeepClassMembers(KeepSetting.PUBLIC_MEMBERS)
     public interface ViewHolderFactory<VH extends ViewHolder<?>> {
         VH create(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent);
     }
 
-    @KeepClass
-    @KeepClassMembers(KeepSetting.PUBLIC_MEMBERS)
     public static class Builder<T extends ViewModel> {
 
         private final List<ModularSortedListAdapterImpl.Module<?, ?>> mModules = new ArrayList<>();
@@ -129,7 +109,6 @@ public abstract class SortedListAdapter<T extends SortedListAdapter.ViewModel> e
 
     @NonNull
     @SuppressWarnings("unchecked")
-    @KeepMember
     protected abstract SortedListAdapter.ViewHolder<? extends T> onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent, int viewType);
 
     public void addCallback(@NonNull Callback callback) {
