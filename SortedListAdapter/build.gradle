@@ -26,8 +26,8 @@ android {
 
 dependencies {
     compileOnly 'com.android.support:recyclerview-v7:26.1.0'
-    compile 'com.github.wrdlbrnft:modular-adapter:0.3.0.12'
-    compile 'com.github.wrdlbrnft:sorted-list-item-manager:0.3.0.12'
+    api 'com.github.wrdlbrnft:modular-adapter:0.3.0.13'
+    api 'com.github.wrdlbrnft:sorted-list-item-manager:0.3.0.13'
 }
 
 final bintrayUser = System.getenv('BINTRAY_USER') ?: ''
