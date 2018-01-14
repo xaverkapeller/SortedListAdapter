@@ -1,13 +1,19 @@
 language: android
 jdk: oraclejdk8
+
 android:
   components:
   - tools
   - platform-tools
   - extra-android-m2repository
-  - build-tools-26.0.2
-  - android-26
+  - build-tools-27.0.3
+  - android-27
+
+before_install:
+  - yes | sdkmanager "platforms;android-27"
+
 script:
   - ./gradlew clean build test
+
 after_success:
   - ./gradlew bintrayUpload
