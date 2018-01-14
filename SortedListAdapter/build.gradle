@@ -4,12 +4,11 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 27
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 26
+        targetSdkVersion 27
     }
 
     buildTypes {
@@ -25,9 +24,9 @@ android {
 }
 
 dependencies {
-    compileOnly 'com.android.support:recyclerview-v7:26.1.0'
-    api 'com.github.wrdlbrnft:modular-adapter:0.3.0.13'
-    api 'com.github.wrdlbrnft:sorted-list-item-manager:0.3.0.13'
+    compileOnly 'com.android.support:recyclerview-v7:27.0.2'
+    api 'com.github.wrdlbrnft:modular-adapter:0.3.0.22'
+    api 'com.github.wrdlbrnft:sorted-list-item-manager:0.3.0.22'
 }
 
 final bintrayUser = System.getenv('BINTRAY_USER') ?: ''
@@ -36,7 +35,7 @@ final versionName = "0.3.0.${System.getenv('TRAVIS_BUILD_NUMBER') ?: 0}"
 
 task sourceJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
-    classifier 'source'
+    classifier 'sources'
 }
 
 publishing {

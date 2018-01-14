@@ -11,12 +11,14 @@ The `RecyclerView.Adapter` that makes your life easy!
 
 SortedListAdapter is based on the [**ModularAdapter**](https://wrdlbrnft.github.io/ModularAdapter/) you can find the GitHub project [**here**](https://github.com/Wrdlbrnft/ModularAdapter).
 
+If you want to use SortedListAdapter then [**ModularAdapter**](https://wrdlbrnft.github.io/ModularAdapter/) is probably the library you are really looking for. All features of SortedListAdapter are developed in and for ModularAdapter and then included in this project.
+
 # How do I add it to my project?
 
 Just add this dependency to your build.gradle file:
 
 ```
-compile 'com.github.wrdlbrnft:sorted-list-adapter:0.3.0.25'
+compile 'com.github.wrdlbrnft:sorted-list-adapter:0.3.0.26'
 ```
 
 ## Example Project
